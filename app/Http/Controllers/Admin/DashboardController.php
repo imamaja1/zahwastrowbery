@@ -41,8 +41,14 @@ class DashboardController extends Controller
                 'items_summary' => $sale->items->map(fn ($i) => "{$i->product_name} ({$i->variant_name}) × {$i->quantity}")->join(', '),
             ]);
 
-        // Monthly sales data for graph
-        $monthlySales = Sale::selectRaw("strftime('%m', created_at) as month, sum(total_amount) as total")
+        // Monthly sales data for graph (Compatible with MySQL, PostgreSQL, and SQLite)
+        $monthExpr = match (DB::getDriverName()) {
+            'sqlite' => "strftime('%m', created_at)",
+            'pgsql' => "to_char(created_at, 'MM')",
+            default => "DATE_FORMAT(created_at, '%m')",
+        };
+
+        $monthlySales = Sale::selectRaw("{$monthExpr} as month, sum(total_amount) as total")
             ->where('payment_status', Sale::STATUS_PAID)
             ->groupBy('month')
             ->orderBy('month')
