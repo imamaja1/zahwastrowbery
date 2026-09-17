@@ -1,0 +1,143 @@
+{
+  "version": 1,
+  "skills": {
+    "audit-architecture": {
+      "source": "freekmurze/dotfiles",
+      "sourceType": "github",
+      "skillPath": "config/claude/skills/audit-architecture/SKILL.md",
+      "computedHash": "2a22d081afcf7c0492ee43f78e0d3f3a1b214082b72b98cc00806cf526414fdc"
+    },
+    "code-snippet-images": {
+      "source": "freekmurze/dotfiles",
+      "sourceType": "github",
+      "skillPath": "config/claude/skills/code-snippet-images/SKILL.md",
+      "computedHash": "3f6a9ab79d7d47d3e649679e448cf8a4676e98cbb400d71e59662c4afb752ba4"
+    },
+    "conductor": {
+      "source": "freekmurze/dotfiles",
+      "sourceType": "github",
+      "skillPath": "config/claude/skills/conductor/SKILL.md",
+      "computedHash": "0a833777c888037fede7897ff62a837181230eeee394dacea6766675bf72eabd"
+    },
+    "explain-changes": {
+      "source": "freekmurze/dotfiles",
+      "sourceType": "github",
+      "skillPath": "config/claude/skills/explain-changes/SKILL.md",
+      "computedHash": "3cf023b3ff2d15117ad752e38e8d52d7cf7a23e34a0f9f79bded0bca0d715e33"
+    },
+    "flare": {
+      "source": "freekmurze/dotfiles",
+      "sourceType": "github",
+      "skillPath": "config/claude/skills/flare/SKILL.md",
+      "computedHash": "13587ac286f670da229d6df7448d55106bcfdd60d7529a0239e3a21bd0acbc78"
+    },
+    "grill-me": {
+      "source": "freekmurze/dotfiles",
+      "sourceType": "github",
+      "skillPath": "config/claude/skills/grill-me/SKILL.md",
+      "computedHash": "daf64ca15f4fa081a6747766db538e2dbd1131725ed4fcdd3d538dc62c7035ba"
+    },
+    "install-anti-slop": {
+      "source": "dmmulroy/anti-slop",
+      "sourceType": "github",
+      "skillPath": "skills/install-anti-slop/SKILL.md",
+      "computedHash": "d92d8dbdf1bd96e11ee33945dca76306179a7c415e7339769084b2c211c6897c"
+    },
+    "laravel-best-practices": {
+      "source": "laravel/boost",
+      "sourceType": "github",
+      "skillPath": ".ai/laravel/skill/laravel-best-practices/SKILL.md",
+      "computedHash": "63c017c8386946e4da0aef97622211d216acdaaec14939e166d5c8c2b4161563"
+    },
+    "laravel-inertia-react": {
+      "source": "asyrafhussin/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/laravel-inertia-react/SKILL.md",
+      "computedHash": "48153a3ab923ee477416dad35ee8cf814b2cb324829d140098a092f4e33dd2c6"
+    },
+    "laravel-inertia-react-structure": {
+      "source": "freekmurze/dotfiles",
+      "sourceType": "github",
+      "skillPath": "config/claude/skills/laravel-inertia-react-structure/SKILL.md",
+      "computedHash": "2d4238f5b662d1f4da0d3d006523b5efc53b13db418ca7cfcd76ebf402c92fc9"
+    },
+    "livewire-4": {
+      "source": "freekmurze/dotfiles",
+      "sourceType": "github",
+      "skillPath": "config/claude/skills/livewire-4/SKILL.md",
+      "computedHash": "23041f608dabc88cc739fe2defccd327b8b6ac81b1e0cb2796a9c898849f493a"
+    },
+    "mailcoach": {
+      "source": "freekmurze/dotfiles",
+      "sourceType": "github",
+      "skillPath": "config/claude/skills/mailcoach/SKILL.md",
+      "computedHash": "83795ece2122e4da56fc80e9ce5ad43553922e6688d48b73efa7c95ac1a27ad4"
+    },
+    "react-best-practices": {
+      "source": "freekmurze/dotfiles",
+      "sourceType": "github",
+      "skillPath": "config/claude/skills/react-best-practices/SKILL.md",
+      "computedHash": "b6410146f72d390d4b4e0cdaf06181d7f77b3cd470320be1bb8dae3ee84c832f"
+    },
+    "review-code": {
+      "source": "freekmurze/dotfiles",
+      "sourceType": "github",
+      "skillPath": "config/claude/skills/review-code/SKILL.md",
+      "computedHash": "50d5605ab91c1f4dd2a4fa306fac2adc7e41be303b914476fdf239310faa2eec"
+    },
+    "review-pr": {
+      "source": "freekmurze/dotfiles",
+      "sourceType": "github",
+      "skillPath": "config/claude/skills/review-pr/SKILL.md",
+      "computedHash": "789c73fc0598d609ffe61b7fb3fe4548caf9454b1b47ca9d3476df1730da6d93"
+    },
+    "spatie-guidelines": {
+      "source": "freekmurze/dotfiles",
+      "sourceType": "github",
+      "skillPath": "config/claude/skills/spatie-guidelines/SKILL.md",
+      "computedHash": "9093b5fc6319def8fc1ccbdfa418c52863b29d3812edd7365859c2f836c98803"
+    },
+    "spatie-package-skeleton": {
+      "source": "freekmurze/dotfiles",
+      "sourceType": "github",
+      "skillPath": "config/claude/skills/spatie-package-skeleton/SKILL.md",
+      "computedHash": "7430d3d25c276426fccd10068c875698cf91b4ebd94a6bad814add7b8045a8ee"
+    },
+    "speeding-up-laravel-tests": {
+      "source": "freekmurze/dotfiles",
+      "sourceType": "github",
+      "skillPath": "config/claude/skills/speeding-up-laravel-tests/SKILL.md",
+      "computedHash": "8d9f742e34b6173185374fff3330a4bdd7aba9e0512fc18f91f6767592bfa87a"
+    },
+    "there-there": {
+      "source": "freekmurze/dotfiles",
+      "sourceType": "github",
+      "skillPath": "config/claude/skills/there-there/SKILL.md",
+      "computedHash": "4d086164a9fa5a43cd61b90c76722a73a6c7f93db66c566998ca7deb1c0bff2e"
+    },
+    "typefully": {
+      "source": "freekmurze/dotfiles",
+      "sourceType": "github",
+      "skillPath": "config/claude/skills/typefully/SKILL.md",
+      "computedHash": "66681d9f4c7dc4356f6664698faf83684f956bbb9c1498de009a37cd7ebd85fc"
+    },
+    "ui": {
+      "source": "freekmurze/dotfiles",
+      "sourceType": "github",
+      "skillPath": "config/claude/skills/ui/SKILL.md",
+      "computedHash": "d6a2196ac31bf6858bca4cccee8ad0acb43aa06d9bc81ec2fb88c850f4ecf454"
+    },
+    "update-spatie-docs": {
+      "source": "freekmurze/dotfiles",
+      "sourceType": "github",
+      "skillPath": "config/claude/skills/update-spatie-docs/SKILL.md",
+      "computedHash": "3385d5f063aa7050125b376c2b48bc5e91c6e4549395aa956e1e19929a50f7f7"
+    },
+    "write-freek-dev-blogpost": {
+      "source": "freekmurze/dotfiles",
+      "sourceType": "github",
+      "skillPath": "config/claude/skills/write-freek-dev-blogpost/SKILL.md",
+      "computedHash": "20eb60d5821ede3edfc7789e7e50ab22c311bdd6f1e8b3e6ab6a45be613ff153"
+    }
+  }
+}

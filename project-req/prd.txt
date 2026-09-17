@@ -1,0 +1,1554 @@
+# PRD — Sistem Penjualan Buah
+
+**Versi:** 1.0
+**Status:** Draft
+**Framework:** Laravel 13
+**Frontend:** React + Inertia.js
+**Database:** MySQL
+**Authentication:** Google Login
+**Payment:** QRIS, COD, Transfer + Bukti Pembayaran
+**NamaSistem:**ZahwaStrowbery
+
+---
+
+# 1. Gambaran Umum
+
+Sistem Penjualan Buah adalah aplikasi web untuk melakukan penjualan berbagai jenis buah dengan pilihan kemasan, ukuran, dan satuan yang fleksibel.
+
+Sistem memungkinkan pelanggan untuk:
+
+* Login menggunakan akun Google.
+* Melihat daftar buah.
+* Melihat variasi produk.
+* Memilih kemasan.
+* Memilih ukuran.
+* Memilih satuan.
+* Menambahkan produk ke keranjang.
+* Melakukan checkout.
+* Memilih metode pembayaran.
+* Mengupload bukti pembayaran untuk transfer.
+* Melihat status pesanan.
+* Melihat riwayat transaksi.
+
+Admin dapat:
+
+* Mengelola buah.
+* Mengelola kategori buah.
+* Mengelola jenis kemasan.
+* Mengelola ukuran.
+* Mengelola satuan.
+* Mengelola variasi produk.
+* Mengelola stok.
+* Mengelola transaksi.
+* Memverifikasi bukti pembayaran.
+* Melihat grafik penjualan.
+
+---
+
+# 2. Tujuan Sistem
+
+## 2.1 Tujuan Utama
+
+Membangun sistem penjualan buah berbasis web yang mampu menangani produk dengan variasi penjualan yang fleksibel.
+
+Sistem tidak menganggap semua buah dijual dengan satuan yang sama.
+
+Contoh:
+
+* Apel dapat dijual per Kg.
+* Apel dapat dijual dalam mika Small.
+* Apel dapat dijual dalam mika Medium.
+* Apel dapat dijual dalam mika Big.
+* Apel dapat dijual dalam kotak.
+
+Dengan demikian, harga dan stok dapat berbeda untuk setiap variasi.
+
+## 2.2 Tujuan Tambahan
+
+Sistem menyediakan:
+
+* Authentication menggunakan Google.
+* Keranjang belanja.
+* Checkout.
+* Pembayaran QRIS.
+* Pembayaran COD.
+* Transfer dengan upload bukti pembayaran.
+* Manajemen status pembayaran.
+* Riwayat transaksi.
+* Dashboard penjualan.
+* Grafik penjualan.
+
+---
+
+# 3. Scope Sistem
+
+## 3.1 In Scope
+
+Fitur yang termasuk dalam versi pertama:
+
+### Authentication
+
+* Login dengan Google.
+* Logout.
+* Session management.
+* User profile.
+
+### Master Data
+
+* Kategori buah.
+* Buah.
+* Jenis kemasan.
+* Ukuran.
+* Satuan.
+* Variasi produk.
+
+### Penjualan
+
+* Daftar produk.
+* Detail produk.
+* Pilih variasi.
+* Keranjang.
+* Checkout.
+* Membuat transaksi.
+* Detail transaksi.
+* Riwayat transaksi.
+
+### Pembayaran
+
+* QRIS.
+* COD.
+* Transfer.
+* Upload foto bukti transfer.
+* Verifikasi pembayaran oleh admin.
+
+### Dashboard
+
+* Total penjualan.
+* Jumlah transaksi.
+* Produk terjual.
+* Grafik penjualan.
+* Produk paling banyak terjual.
+
+---
+
+# 4. Out of Scope
+
+Fitur berikut belum termasuk versi pertama:
+
+* Payment gateway otomatis.
+* Integrasi bank secara langsung.
+* Payment API.
+* Pengiriman otomatis.
+* Integrasi kurir.
+* Marketplace.
+* Multi-cabang.
+* Multi-gudang.
+* Program membership.
+* Voucher kompleks.
+* Point/reward.
+* Akuntansi.
+* Purchase order supplier.
+* Manajemen supplier.
+* Pembelian stok dari supplier.
+* Multi-level harga pelanggan.
+* Mobile application Android/iOS.
+
+Fitur tersebut dapat ditambahkan pada versi berikutnya.
+
+---
+
+# 5. User Role
+
+Sistem memiliki dua role utama:
+
+## 5.1 Customer
+
+Customer dapat:
+
+* Login dengan Google.
+* Melihat produk.
+* Memilih variasi produk.
+* Membeli produk.
+* Mengelola keranjang.
+* Checkout.
+* Memilih metode pembayaran.
+* Upload bukti transfer.
+* Melihat status pesanan.
+* Melihat riwayat transaksi.
+
+## 5.2 Admin
+
+Admin dapat:
+
+* Login.
+* Mengelola master data.
+* Mengelola produk.
+* Mengelola variasi.
+* Mengelola stok.
+* Melihat transaksi.
+* Memverifikasi pembayaran.
+* Melihat dashboard.
+* Melihat laporan/grafik penjualan.
+
+---
+
+# 6. Konsep Produk
+
+Sistem menggunakan konsep:
+
+```text
+Product
+    ↓
+Product Variant
+    ↓
+Kemasan + Ukuran + Satuan
+    ↓
+Harga + Stok
+```
+
+Contoh:
+
+```text
+Apel
+│
+├── Mika Small
+├── Mika Medium
+├── Mika Big
+├── Kotak
+└── Kg
+```
+
+Setiap variasi dapat mempunyai harga dan stok berbeda.
+
+---
+
+# 7. Master Data
+
+## 7.1 Kategori Buah
+
+Contoh:
+
+```text
+Buah Lokal
+Buah Import
+Buah Tropis
+Buah Potong
+```
+
+Field:
+
+| Field       | Tipe          |
+| ----------- | ------------- |
+| id          | bigint        |
+| name        | varchar       |
+| description | text nullable |
+| is_active   | boolean       |
+| timestamps  | datetime      |
+
+---
+
+# 8. Master Buah
+
+Data utama buah.
+
+Contoh:
+
+```text
+Apel
+Jeruk
+Mangga
+Anggur
+Semangka
+Melon
+```
+
+Field:
+
+| Field       | Tipe             |
+| ----------- | ---------------- |
+| id          | bigint           |
+| category_id | foreign key      |
+| name        | varchar          |
+| description | text nullable    |
+| image       | varchar nullable |
+| is_active   | boolean          |
+| timestamps  | datetime         |
+
+Relasi:
+
+```text
+Category
+    ↓
+Products
+```
+
+---
+
+# 9. Jenis Kemasan
+
+Kemasan tidak dibuat menjadi field bebas pada produk.
+
+Kemasan menjadi master data.
+
+Contoh:
+
+```text
+Mika
+Kotak
+Plastik
+Keranjang
+Tanpa Kemasan
+```
+
+Field:
+
+| Field       | Tipe          |
+| ----------- | ------------- |
+| id          | bigint        |
+| name        | varchar       |
+| description | text nullable |
+| is_active   | boolean       |
+| timestamps  | datetime      |
+
+---
+
+# 10. Ukuran
+
+Ukuran digunakan jika produk mempunyai ukuran.
+
+Contoh:
+
+```text
+Small
+Medium
+Big
+Jumbo
+```
+
+Field:
+
+| Field       | Tipe          |
+| ----------- | ------------- |
+| id          | bigint        |
+| name        | varchar       |
+| description | text nullable |
+| is_active   | boolean       |
+| timestamps  | datetime      |
+
+Ukuran bersifat optional.
+
+Contoh:
+
+```text
+Mika Small
+Mika Medium
+Mika Big
+```
+
+Tetapi:
+
+```text
+Apel Kg
+```
+
+tidak membutuhkan ukuran.
+
+---
+
+# 11. Satuan
+
+Satuan digunakan untuk menentukan bagaimana jumlah produk dihitung.
+
+Contoh:
+
+```text
+Kg
+Gram
+Pcs
+Box
+Pack
+```
+
+Field:
+
+| Field       | Tipe          |
+| ----------- | ------------- |
+| id          | bigint        |
+| name        | varchar       |
+| symbol      | varchar       |
+| description | text nullable |
+| is_active   | boolean       |
+| timestamps  | datetime      |
+
+---
+
+# 12. Product Variant
+
+Product Variant adalah inti sistem produk.
+
+Contoh:
+
+```text
+Apel
+│
+├── Mika / Small / Pcs
+├── Mika / Medium / Pcs
+├── Mika / Big / Pcs
+├── Kotak / null / Box
+└── Tanpa Kemasan / null / Kg
+```
+
+Field:
+
+| Field             | Tipe                 |
+| ----------------- | -------------------- |
+| id                | bigint               |
+| product_id        | foreign key          |
+| packaging_type_id | foreign key nullable |
+| size_id           | foreign key nullable |
+| unit_id           | foreign key          |
+| sku               | varchar unique       |
+| price             | decimal              |
+| stock             | decimal              |
+| is_active         | boolean              |
+| timestamps        | datetime             |
+
+## Contoh
+
+```text
+SKU: APL-MED-001
+
+Produk:
+Apel
+
+Kemasan:
+Mika
+
+Ukuran:
+Medium
+
+Satuan:
+Pcs
+
+Harga:
+15000
+
+Stok:
+20
+```
+
+---
+
+# 13. Aturan Produk
+
+Sistem harus memungkinkan variasi yang berbeda untuk produk yang sama.
+
+Contoh:
+
+| Produk | Kemasan | Ukuran | Satuan |  Harga |
+| ------ | ------- | ------ | ------ | -----: |
+| Apel   | Mika    | Small  | Pcs    | 10.000 |
+| Apel   | Mika    | Medium | Pcs    | 15.000 |
+| Apel   | Mika    | Big    | Pcs    | 20.000 |
+| Apel   | Kotak   | -      | Box    | 35.000 |
+| Apel   | -       | -      | Kg     | 30.000 |
+
+Tidak semua produk wajib memiliki:
+
+* Kemasan.
+* Ukuran.
+
+Tetapi setiap variant harus mempunyai satuan.
+
+---
+
+# 14. Stok
+
+Stok disimpan pada level `product_variant`.
+
+Contoh:
+
+```text
+Apel Mika Small
+Stok: 20 Pcs
+
+Apel Mika Medium
+Stok: 15 Pcs
+
+Apel Kg
+Stok: 50 Kg
+```
+
+Dengan demikian stok tidak bercampur antara Pcs, Box, dan Kg.
+
+## Aturan Stok
+
+Saat transaksi berhasil dibuat:
+
+```text
+stok variant
+    ↓
+dikurangi
+    ↓
+quantity transaksi
+```
+
+Sistem harus memastikan stok mencukupi sebelum checkout.
+
+Contoh:
+
+```text
+Stok: 10
+
+Customer membeli:
+3
+
+Sisa:
+7
+```
+
+---
+
+# 15. Keranjang
+
+Customer dapat memasukkan beberapa variasi produk.
+
+Contoh:
+
+```text
+Keranjang
+
+Apel Mika Medium
+2 × Rp15.000
+Rp30.000
+
+Jeruk Kg
+1.5 × Rp20.000
+Rp30.000
+
+Mangga Kotak
+1 × Rp35.000
+Rp35.000
+
+---------------------
+Total Rp95.000
+```
+
+## Aturan Quantity
+
+Quantity menggunakan decimal.
+
+Contoh:
+
+```text
+1
+2
+1.5
+2.25
+```
+
+Hal ini diperlukan karena buah dapat dijual berdasarkan berat.
+
+Database:
+
+```text
+quantity DECIMAL(10,3)
+```
+
+---
+
+# 16. Checkout
+
+Checkout menampilkan:
+
+```text
+Alamat / Informasi Customer
+
+Detail Produk
+
+Subtotal
+
+Total
+
+Metode Pembayaran
+```
+
+Customer kemudian memilih metode pembayaran.
+
+---
+
+# 17. Metode Pembayaran
+
+Sistem memiliki tiga metode pembayaran:
+
+```text
+QRIS
+COD
+TRANSFER
+```
+
+---
+
+# 18. Pembayaran QRIS
+
+Untuk versi pertama, QRIS menggunakan QRIS statis.
+
+Flow:
+
+```text
+Checkout
+    ↓
+Pilih QRIS
+    ↓
+Tampilkan QRIS
+    ↓
+Customer melakukan pembayaran
+    ↓
+Customer mengupload bukti pembayaran
+    ↓
+Status:
+WAITING_VERIFICATION
+    ↓
+Admin melakukan verifikasi
+    ↓
+PAID
+```
+
+QRIS belum menggunakan payment gateway otomatis.
+
+---
+
+# 19. Pembayaran COD
+
+Flow:
+
+```text
+Checkout
+    ↓
+Pilih COD
+    ↓
+Buat pesanan
+    ↓
+Status pesanan
+PROCESSING
+    ↓
+Barang dikirim
+    ↓
+Customer membayar
+```
+
+Status pembayaran awal:
+
+```text
+PENDING
+```
+
+Setelah pembayaran diterima:
+
+```text
+PAID
+```
+
+---
+
+# 20. Transfer Bank
+
+Flow:
+
+```text
+Checkout
+    ↓
+Pilih Transfer
+    ↓
+Tampilkan informasi rekening
+    ↓
+Customer melakukan transfer
+    ↓
+Upload foto bukti transfer
+    ↓
+WAITING_VERIFICATION
+    ↓
+Admin memeriksa
+```
+
+Jika valid:
+
+```text
+PAID
+```
+
+Jika tidak valid:
+
+```text
+REJECTED
+```
+
+Customer dapat melakukan upload ulang jika transaksi masih diperbolehkan.
+
+---
+
+# 21. Bukti Pembayaran
+
+Untuk QRIS dan Transfer, customer dapat mengupload foto bukti pembayaran.
+
+Field:
+
+```text
+payment_proof
+```
+
+Format yang diperbolehkan:
+
+```text
+JPG
+JPEG
+PNG
+WEBP
+```
+
+Batas ukuran file harus ditentukan pada konfigurasi aplikasi.
+
+---
+
+# 22. Status Pembayaran
+
+Status pembayaran:
+
+```text
+PENDING
+WAITING_VERIFICATION
+PAID
+REJECTED
+EXPIRED
+CANCELLED
+```
+
+## Penjelasan
+
+### PENDING
+
+Transaksi dibuat tetapi belum melakukan pembayaran.
+
+### WAITING_VERIFICATION
+
+Customer sudah mengirim bukti pembayaran dan menunggu pemeriksaan admin.
+
+### PAID
+
+Pembayaran sudah diverifikasi.
+
+### REJECTED
+
+Bukti pembayaran ditolak.
+
+### EXPIRED
+
+Transaksi melewati batas waktu pembayaran.
+
+### CANCELLED
+
+Transaksi dibatalkan.
+
+---
+
+# 23. Transaction / Sales
+
+Tabel utama transaksi:
+
+```text
+sales
+```
+
+Field:
+
+| Field          | Tipe              |
+| -------------- | ----------------- |
+| id             | bigint            |
+| user_id        | foreign key       |
+| invoice_number | varchar unique    |
+| total_amount   | decimal           |
+| payment_method | enum/string       |
+| payment_status | enum/string       |
+| payment_proof  | varchar nullable  |
+| notes          | text nullable     |
+| paid_at        | datetime nullable |
+| expired_at     | datetime nullable |
+| timestamps     | datetime          |
+
+---
+
+# 24. Sale Items
+
+Detail produk yang dibeli disimpan pada:
+
+```text
+sale_items
+```
+
+Field:
+
+| Field              | Tipe        |
+| ------------------ | ----------- |
+| id                 | bigint      |
+| sale_id            | foreign key |
+| product_variant_id | foreign key |
+| product_name       | varchar     |
+| variant_name       | varchar     |
+| quantity           | decimal     |
+| price              | decimal     |
+| subtotal           | decimal     |
+| timestamps         | datetime    |
+
+Nama dan harga sebaiknya disimpan sebagai snapshot transaksi.
+
+Tujuannya agar perubahan nama/harga produk di kemudian hari tidak mengubah histori transaksi.
+
+Contoh:
+
+```text
+Saat transaksi:
+Apel Mika Medium
+Rp15.000
+```
+
+Jika admin kemudian mengubah harga menjadi:
+
+```text
+Rp18.000
+```
+
+Transaksi lama tetap:
+
+```text
+Rp15.000
+```
+
+---
+
+# 25. Nomor Invoice
+
+Setiap transaksi mempunyai nomor invoice unik.
+
+Format contoh:
+
+```text
+INV-20260916-0001
+INV-20260916-0002
+INV-20260916-0003
+```
+
+Invoice digunakan untuk:
+
+* Identifikasi transaksi.
+* Pencarian.
+* Riwayat.
+* Verifikasi pembayaran.
+
+---
+
+# 26. Dashboard Customer
+
+Dashboard customer menampilkan:
+
+```text
+Halo, Muhammad
+
+Pesanan Aktif
+3
+
+Total Transaksi
+12
+
+Total Belanja
+Rp1.250.000
+```
+
+Menu:
+
+```text
+Home
+Produk
+Keranjang
+Pesanan
+Profile
+Logout
+```
+
+---
+
+# 27. Dashboard Admin
+
+Dashboard admin menampilkan ringkasan:
+
+```text
+Total Penjualan
+Rp10.500.000
+
+Transaksi
+125
+
+Produk Terjual
+438
+
+Menunggu Verifikasi
+8
+```
+
+---
+
+# 28. Grafik Penjualan
+
+Dashboard admin memiliki grafik penjualan.
+
+Grafik dapat berdasarkan:
+
+* Hari.
+* Minggu.
+* Bulan.
+
+Contoh:
+
+```text
+Penjualan Bulanan
+
+Jan   Rp5.000.000
+Feb   Rp6.200.000
+Mar   Rp7.100.000
+Apr   Rp6.800.000
+```
+
+Selain nominal, dapat ditampilkan:
+
+* Jumlah transaksi.
+* Jumlah produk terjual.
+* Produk paling banyak terjual.
+
+---
+
+# 29. Grafik Produk
+
+Admin dapat melihat produk yang paling banyak terjual.
+
+Contoh:
+
+```text
+Apel       120
+Jeruk       98
+Mangga      87
+Anggur      65
+```
+
+Grafik harus berdasarkan data transaksi yang sudah tercatat.
+
+---
+
+# 30. Riwayat Transaksi Customer
+
+Customer dapat melihat:
+
+```text
+Invoice       Tanggal       Total       Status
+------------------------------------------------
+INV-0001      16 Sep        95.000      PAID
+INV-0002      16 Sep        50.000      PENDING
+INV-0003      15 Sep        75.000      COD
+```
+
+Customer dapat membuka detail transaksi.
+
+---
+
+# 31. Detail Transaksi
+
+Detail transaksi:
+
+```text
+INV-20260916-0001
+
+Tanggal:
+16 September 2026
+
+Customer:
+Nama Customer
+
+Produk:
+Apel Mika Medium
+2 × Rp15.000
+Rp30.000
+
+Jeruk Kg
+1.5 × Rp20.000
+Rp30.000
+
+---------------------
+TOTAL Rp60.000
+
+Pembayaran:
+TRANSFER
+
+Status:
+WAITING VERIFICATION
+```
+
+---
+
+# 32. Admin Verifikasi Pembayaran
+
+Admin mempunyai halaman:
+
+```text
+Pembayaran Menunggu Verifikasi
+```
+
+Menampilkan:
+
+```text
+Invoice
+Customer
+Metode
+Total
+Tanggal
+Bukti Pembayaran
+Status
+Action
+```
+
+Action:
+
+```text
+Lihat Bukti
+Approve
+Reject
+```
+
+Saat approve:
+
+```text
+payment_status = PAID
+paid_at = current timestamp
+```
+
+Saat reject:
+
+```text
+payment_status = REJECTED
+```
+
+Admin dapat memberikan alasan penolakan.
+
+---
+
+# 33. Keamanan Pembayaran
+
+Sistem harus:
+
+* Tidak mempercayai total harga dari frontend.
+* Menghitung ulang harga di server.
+* Memastikan variant masih aktif.
+* Memastikan stok mencukupi.
+* Memvalidasi file upload.
+* Membatasi akses bukti pembayaran.
+* Memastikan customer hanya dapat melihat transaksi miliknya.
+* Memastikan hanya admin yang dapat melakukan verifikasi.
+* Menggunakan authorization/policy Laravel.
+
+---
+
+# 34. Authentication Google
+
+Login menggunakan Google OAuth.
+
+Flow:
+
+```text
+Customer
+   ↓
+Login dengan Google
+   ↓
+Google OAuth
+   ↓
+Google memberikan identity
+   ↓
+Laravel
+   ↓
+Cari email / google_id
+   ↓
+User ditemukan?
+   ├── Ya → Login
+   └── Tidak → Buat User
+```
+
+Data user minimal:
+
+```text
+name
+email
+google_id
+avatar
+```
+
+Email Google menjadi identitas utama user.
+
+---
+
+# 35. Arsitektur Teknologi
+
+```text
+┌─────────────────────────────┐
+│          React              │
+│                             │
+│ Product / Cart / Checkout   │
+│ Dashboard / Transaction     │
+└──────────────┬──────────────┘
+               │
+          Inertia.js
+               │
+┌──────────────▼──────────────┐
+│         Laravel 13          │
+│                             │
+│ Controllers                 │
+│ Services                    │
+│ Models                      │
+│ Policies                    │
+│ Validation                  │
+└──────────────┬──────────────┘
+               │
+┌──────────────▼──────────────┐
+│           MySQL             │
+└─────────────────────────────┘
+```
+
+---
+
+# 36. Struktur Modul Laravel
+
+```text
+app/
+├── Models/
+│   ├── User.php
+│   ├── Category.php
+│   ├── Product.php
+│   ├── ProductVariant.php
+│   ├── PackagingType.php
+│   ├── Size.php
+│   ├── Unit.php
+│   ├── Sale.php
+│   └── SaleItem.php
+│
+├── Http/
+│   ├── Controllers/
+│   │   ├── DashboardController.php
+│   │   ├── ProductController.php
+│   │   ├── CartController.php
+│   │   ├── CheckoutController.php
+│   │   └── SaleController.php
+│   │
+│   └── Requests/
+│
+├── Services/
+│   ├── CheckoutService.php
+│   ├── SaleService.php
+│   └── PaymentService.php
+│
+└── Policies/
+    └── SalePolicy.php
+```
+
+---
+
+# 37. Struktur React
+
+```text
+resources/js/
+├── Components/
+│   ├── ProductCard.jsx
+│   ├── ProductVariantSelector.jsx
+│   ├── CartItem.jsx
+│   ├── PaymentMethod.jsx
+│   └── PaymentProofUpload.jsx
+│
+├── Layouts/
+│   ├── CustomerLayout.jsx
+│   └── AdminLayout.jsx
+│
+└── Pages/
+    ├── Customer/
+    │   ├── Dashboard.jsx
+    │   ├── Products/
+    │   ├── Cart.jsx
+    │   ├── Checkout.jsx
+    │   └── Orders/
+    │
+    └── Admin/
+        ├── Dashboard.jsx
+        ├── Products/
+        ├── Categories/
+        ├── PackagingTypes/
+        ├── Sizes/
+        ├── Units/
+        ├── Variants/
+        ├── Sales/
+        └── Payments/
+```
+
+---
+
+# 38. Relasi Database
+
+```text
+users
+  │
+  └──< sales
+          │
+          └──< sale_items
+                  │
+                  └──> product_variants
+                              │
+                              └──> products
+                                      │
+                                      └──> categories
+
+product_variants
+      │
+      ├──> packaging_types
+      │
+      ├──> sizes
+      │
+      └──> units
+```
+
+---
+
+# 39. Business Rules
+
+## BR-001
+
+Customer harus login sebelum melakukan checkout.
+
+## BR-002
+
+Customer dapat melihat produk aktif tanpa login.
+
+## BR-003
+
+Produk nonaktif tidak dapat dibeli.
+
+## BR-004
+
+Variant nonaktif tidak dapat dibeli.
+
+## BR-005
+
+Harga transaksi harus dihitung oleh backend.
+
+## BR-006
+
+Stok harus diverifikasi saat checkout.
+
+## BR-007
+
+Quantity dapat menggunakan decimal.
+
+## BR-008
+
+Transfer membutuhkan bukti pembayaran.
+
+## BR-009
+
+QRIS membutuhkan bukti pembayaran untuk versi pertama.
+
+## BR-010
+
+COD tidak membutuhkan bukti pembayaran saat checkout.
+
+## BR-011
+
+Hanya admin yang dapat memverifikasi pembayaran.
+
+## BR-012
+
+Customer hanya dapat melihat transaksi miliknya.
+
+## BR-013
+
+Transaksi yang sudah PAID tidak boleh diubah secara bebas.
+
+## BR-014
+
+Harga pada `sale_items` merupakan snapshot harga ketika transaksi dibuat.
+
+---
+
+# 40. Acceptance Criteria
+
+## Authentication
+
+* User dapat login dengan Google.
+* User baru otomatis dibuat.
+* User lama dapat login kembali.
+* User dapat logout.
+
+## Produk
+
+* Admin dapat membuat produk.
+* Admin dapat membuat variant.
+* Variant dapat memiliki kemasan.
+* Variant dapat memiliki ukuran.
+* Variant memiliki satuan.
+* Variant memiliki harga.
+* Variant memiliki stok.
+
+## Penjualan
+
+* Customer dapat memilih variant.
+* Customer dapat menambahkan variant ke keranjang.
+* Customer dapat mengubah quantity.
+* Customer dapat menghapus item.
+* Sistem menghitung subtotal.
+* Sistem menghitung total.
+
+## Pembayaran
+
+* Customer dapat memilih QRIS.
+* Customer dapat memilih COD.
+* Customer dapat memilih Transfer.
+* Transfer dapat upload bukti.
+* QRIS dapat upload bukti.
+* Admin dapat approve pembayaran.
+* Admin dapat reject pembayaran.
+
+## Dashboard
+
+* Total penjualan ditampilkan.
+* Total transaksi ditampilkan.
+* Grafik penjualan ditampilkan.
+* Produk terlaris dapat ditampilkan.
+
+---
+
+# 41. Prioritas Pengembangan
+
+## Phase 1 — Foundation
+
+```text
+Laravel 13
+React
+Inertia
+MySQL
+Authentication
+Google Login
+```
+
+## Phase 2 — Master Data
+
+```text
+Kategori
+Produk
+Kemasan
+Ukuran
+Satuan
+Product Variant
+```
+
+## Phase 3 — Customer
+
+```text
+Product Listing
+Product Detail
+Cart
+Checkout
+```
+
+## Phase 4 — Transaction
+
+```text
+Sales
+Sale Items
+Invoice
+Stock
+```
+
+## Phase 5 — Payment
+
+```text
+QRIS
+COD
+Transfer
+Upload Bukti
+Verification
+```
+
+## Phase 6 — Dashboard
+
+```text
+Dashboard
+Statistik
+Grafik Penjualan
+Produk Terlaris
+```
+
+## Phase 7 — Testing
+
+```text
+Authentication Test
+Product Test
+Cart Test
+Checkout Test
+Stock Test
+Payment Test
+Authorization Test
+```
+
+---
+
+# 42. MVP
+
+MVP minimal harus memiliki:
+
+```text
+✓ Google Login
+
+✓ Master Kategori
+✓ Master Buah
+✓ Master Kemasan
+✓ Master Ukuran
+✓ Master Satuan
+✓ Product Variant
+
+✓ Product Listing
+✓ Cart
+✓ Checkout
+
+✓ QRIS
+✓ COD
+✓ Transfer
+✓ Upload Bukti
+
+✓ Admin Verification
+
+✓ Transaction History
+
+✓ Dashboard
+✓ Grafik Penjualan
+```
+
+---
+
+# 43. Prinsip Pengembangan
+
+Sistem harus dibuat dengan prinsip:
+
+### Simple
+
+Jangan membuat modul yang belum diperlukan.
+
+### Flexible
+
+Produk harus mendukung variasi:
+
+```text
+Kemasan
+Ukuran
+Satuan
+```
+
+### Secure
+
+Semua transaksi dan pembayaran harus diverifikasi oleh backend.
+
+### Maintainable
+
+Business logic penting ditempatkan pada Service, bukan seluruhnya di Controller.
+
+### Scalable
+
+Struktur database harus memungkinkan penambahan payment gateway dan fitur lain pada versi berikutnya tanpa melakukan perubahan besar.
+
+---
+
+# 44. Future Development
+
+Setelah MVP stabil, sistem dapat dikembangkan menjadi:
+
+```text
+Payment Gateway
+     ↓
+QRIS otomatis
+     ↓
+Webhook
+     ↓
+Payment otomatis
+```
+
+Kemudian:
+
+```text
+Supplier
+Purchase
+Stock In
+Stock Out
+Delivery
+Customer Address
+Courier
+Discount
+Voucher
+Report
+Export Excel
+```
+
+Namun seluruh fitur tersebut **tidak menjadi bagian MVP**.
+
+---
+
+# 45. Kesimpulan
+
+Sistem Penjualan Buah menggunakan struktur produk yang fleksibel.
+
+Konsep utama:
+
+```text
+PRODUCT
+   ↓
+PRODUCT VARIANT
+   ↓
+┌──────────────┐
+│ Kemasan      │
+│ Ukuran       │
+│ Satuan       │
+│ Harga        │
+│ Stok         │
+└──────────────┘
+```
+
+Penjualan:
+
+```text
+Product
+   ↓
+Variant
+   ↓
+Cart
+   ↓
+Checkout
+   ↓
+Payment
+   ├── QRIS
+   ├── COD
+   └── Transfer
+          ↓
+      Bukti Foto
+          ↓
+      Verification
+```
+
+Teknologi:
+
+```text
+Laravel 13
+React
+Inertia.js
+MySQL
+Google OAuth
+```
+
+Target utama versi pertama adalah **sistem penjualan buah yang sederhana, fleksibel terhadap variasi produk, memiliki tiga metode pembayaran, dan menyediakan dashboard/grafik penjualan.**
