@@ -76,10 +76,8 @@ export function ToastProvider({ children }: { children: ReactNode }) {
         const newToast: ToastItem = { id, message: cleanMsg, type, title };
 
         setToasts((prev) => {
-            // Keep at most 2 active toasts to prevent screen clutter
-            const filtered = prev.filter((t) => t.message.toLowerCase() !== cleanMsg.toLowerCase());
-            const updated = [...filtered, newToast];
-            return updated.slice(-2);
+            // Keep only the newest toast to prevent screen clutter / double stacking
+            return [newToast];
         });
 
         // Auto dismiss after 4 seconds

@@ -183,6 +183,10 @@ export function useProductManagement({
         }
     };
 
+    // Delete modal states
+    const [deletingProduct, setDeletingProduct] = useState<ProductItem | null>(null);
+    const [deletingVariant, setDeletingVariant] = useState<{ id: number; sku: string } | null>(null);
+
     const handleToggleProduct = (id: number) => {
         router.post(`/admin/products/${id}/toggle`, {}, {
             preserveScroll: true,
@@ -190,11 +194,24 @@ export function useProductManagement({
     };
 
     const handleDeleteProduct = (id: number, name: string) => {
-        if (confirm(`Apakah Anda yakin ingin menghapus produk "${name}" beserta seluruh varian dan fotonya?`)) {
-            router.delete(`/admin/products/${id}`, {
-                preserveScroll: true,
-            });
+        const prod = products.find((p) => p.id === id);
+        if (prod) {
+            setDeletingProduct(prod);
+        } else {
+            setDeletingProduct({ id, name } as ProductItem);
         }
+    };
+
+    const confirmDeleteProduct = () => {
+        if (!deletingProduct) return;
+        router.delete(`/admin/products/${deletingProduct.id}`, {
+            preserveScroll: true,
+            onSuccess: () => setDeletingProduct(null),
+        });
+    };
+
+    const cancelDeleteProduct = () => {
+        setDeletingProduct(null);
     };
 
     // Variant Management Handlers
@@ -248,26 +265,26 @@ export function useProductManagement({
         if (!managingVariantsProduct) return;
 
         if (!variantPrice || Number(variantPrice) < 0) {
-            setVariantFormError('Harga jual wajib diisi dan minimal 0.');
+            setVariantFormError('Harga harus diisi dengan angka positif');
             return;
         }
 
         if (!variantUnit) {
-            setVariantFormError('Satuan dasar wajib dipilih.');
+            setVariantFormError('Satuan berat/unit wajib dipilih');
             return;
         }
 
-        setVariantFormError(null);
         setIsSubmittingVariant(true);
+        setVariantFormError(null);
 
         const payload = {
             product_id: managingVariantsProduct.id,
-            packaging_type_id: variantPackaging === 'none' ? null : variantPackaging,
-            size_id: variantSize === 'none' ? null : variantSize,
-            unit_id: variantUnit,
-            sku: variantSku,
-            price: variantPrice,
-            stock: variantStock,
+            packaging_type_id: variantPackaging !== 'none' ? Number(variantPackaging) : null,
+            size_id: variantSize !== 'none' ? Number(variantSize) : null,
+            unit_id: Number(variantUnit),
+            sku: variantSku ? variantSku.trim().toUpperCase() : null,
+            price: Number(variantPrice),
+            stock: Number(variantStock || 0),
             is_active: variantIsActive,
         };
 
@@ -278,11 +295,9 @@ export function useProductManagement({
                     setIsSubmittingVariant(false);
                     closeVariantModal();
                 },
-                onError: (err) => {
+                onError: (errs) => {
                     setIsSubmittingVariant(false);
-                    const msg = Object.values(err)[0] || 'Gagal menyimpan varian.';
-                    setVariantFormError(msg);
-                    toastError(msg);
+                    setVariantFormError(Object.values(errs)[0] as string);
                 },
             });
         } else {
@@ -292,11 +307,9 @@ export function useProductManagement({
                     setIsSubmittingVariant(false);
                     closeVariantModal();
                 },
-                onError: (err) => {
+                onError: (errs) => {
                     setIsSubmittingVariant(false);
-                    const msg = Object.values(err)[0] || 'Gagal menambahkan varian.';
-                    setVariantFormError(msg);
-                    toastError(msg);
+                    setVariantFormError(Object.values(errs)[0] as string);
                 },
             });
         }
@@ -309,11 +322,19 @@ export function useProductManagement({
     };
 
     const handleDeleteVariant = (variantId: number, sku: string) => {
-        if (confirm(`Apakah Anda yakin ingin menghapus varian "${sku}"?`)) {
-            router.delete(`/admin/variants/${variantId}`, {
-                preserveScroll: true,
-            });
-        }
+        setDeletingVariant({ id: variantId, sku });
+    };
+
+    const confirmDeleteVariant = () => {
+        if (!deletingVariant) return;
+        router.delete(`/admin/variants/${deletingVariant.id}`, {
+            preserveScroll: true,
+            onSuccess: () => setDeletingVariant(null),
+        });
+    };
+
+    const cancelDeleteVariant = () => {
+        setDeletingVariant(null);
     };
 
     // Find current active product for modal with live data from products prop
@@ -347,6 +368,12 @@ export function useProductManagement({
         setData,
         processing,
         errors,
+        deletingProduct,
+        deletingVariant,
+        confirmDeleteProduct,
+        cancelDeleteProduct,
+        confirmDeleteVariant,
+        cancelDeleteVariant,
         handleSearchChange,
         handleCategoryChange,
         handleClearSearch,

@@ -21,7 +21,7 @@ interface Props {
 }
 
 export default function CategoryManagerDialog({ isOpen, categories, onClose }: Props) {
-    const { success: toastSuccess, error: toastError } = useToast();
+    const { error: toastError } = useToast();
 
     // Popup state for Create Category
     const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -32,6 +32,12 @@ export default function CategoryManagerDialog({ isOpen, categories, onClose }: P
     const [editingCategory, setEditingCategory] = useState<Category | null>(null);
     const [editName, setEditName] = useState('');
     const [editDesc, setEditDesc] = useState('');
+
+    // Popup state for Delete Category Confirmation
+    const [deletingCategory, setDeletingCategory] = useState<Category | null>(null);
+
+    // Popup state for Blocked Delete (Category has attached products)
+    const [blockedCategory, setBlockedCategory] = useState<Category | null>(null);
 
     const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -47,6 +53,15 @@ export default function CategoryManagerDialog({ isOpen, categories, onClose }: P
         setEditingCategory(cat);
         setEditName(cat.name);
         setEditDesc(cat.description || '');
+    };
+
+    // Click Delete Handler
+    const handleRequestDelete = (cat: Category) => {
+        if ((cat.products_count ?? 0) > 0) {
+            setBlockedCategory(cat);
+            return;
+        }
+        setDeletingCategory(cat);
     };
 
     // Save New Category from Create Popup
@@ -68,7 +83,6 @@ export default function CategoryManagerDialog({ isOpen, categories, onClose }: P
                     setCreateDesc('');
                     setIsCreateOpen(false);
                     setIsSubmitting(false);
-                    toastSuccess('Kategori baru berhasil ditambahkan');
                 },
                 onError: (errs) => {
                     setIsSubmitting(false);
@@ -96,7 +110,6 @@ export default function CategoryManagerDialog({ isOpen, categories, onClose }: P
                 onSuccess: () => {
                     setEditingCategory(null);
                     setIsSubmitting(false);
-                    toastSuccess('Kategori berhasil diperbarui');
                 },
                 onError: (errs) => {
                     setIsSubmitting(false);
@@ -107,21 +120,16 @@ export default function CategoryManagerDialog({ isOpen, categories, onClose }: P
         );
     };
 
-    // Delete Category
-    const handleDeleteCategory = (cat: Category) => {
-        if ((cat.products_count ?? 0) > 0) {
-            toastError(`Kategori '${cat.name}' tidak dapat dihapus karena masih digunakan oleh ${cat.products_count} produk.`);
-            return;
-        }
-
-        if (!confirm(`Apakah Anda yakin ingin menghapus kategori '${cat.name}'?`)) return;
+    // Confirm Delete from Delete Popup
+    const handleConfirmDelete = () => {
+        if (!deletingCategory) return;
 
         setIsSubmitting(true);
-        router.delete(`/admin/categories/${cat.id}`, {
+        router.delete(`/admin/categories/${deletingCategory.id}`, {
             preserveScroll: true,
             onSuccess: () => {
+                setDeletingCategory(null);
                 setIsSubmitting(false);
-                toastSuccess(`Kategori '${cat.name}' berhasil dihapus`);
             },
             onError: (errs) => {
                 setIsSubmitting(false);
@@ -216,7 +224,7 @@ export default function CategoryManagerDialog({ isOpen, categories, onClose }: P
                                                 <button
                                                     type="button"
                                                     disabled={isSubmitting}
-                                                    onClick={() => handleDeleteCategory(cat)}
+                                                    onClick={() => handleRequestDelete(cat)}
                                                     className={`w-7 h-7 rounded-lg flex items-center justify-center transition-colors cursor-pointer ${
                                                         (cat.products_count ?? 0) > 0
                                                             ? 'text-zinc-300 hover:text-zinc-400'
@@ -225,7 +233,7 @@ export default function CategoryManagerDialog({ isOpen, categories, onClose }: P
                                                     title={
                                                         (cat.products_count ?? 0) > 0
                                                             ? 'Tidak dapat dihapus karena masih ada produk terkait'
-                                                            : 'Hapus Kategori'
+                                                            : 'Hapus Kategori (Popup)'
                                                     }
                                                 >
                                                     <span className="material-symbols-outlined text-[16px]">
@@ -371,6 +379,76 @@ export default function CategoryManagerDialog({ isOpen, categories, onClose }: P
                             </Button>
                         </DialogFooter>
                     </form>
+                </DialogContent>
+            </Dialog>
+
+            {/* 4. Popup Dialog: Konfirmasi Hapus Kategori */}
+            <Dialog open={deletingCategory !== null} onOpenChange={(open) => !open && setDeletingCategory(null)}>
+                <DialogContent className="max-w-xs sm:max-w-sm w-[90vw] rounded-2xl p-4 sm:p-5">
+                    <DialogHeader className="text-left pb-1">
+                        <div className="w-10 h-10 rounded-xl bg-rose-100 text-rose-600 flex items-center justify-center mb-1">
+                            <span className="material-symbols-outlined text-[22px]">delete_forever</span>
+                        </div>
+                        <DialogTitle className="text-sm font-bold text-zinc-900">
+                            Hapus Kategori Buah?
+                        </DialogTitle>
+                        <DialogDescription className="text-xs text-zinc-600 pt-1">
+                            Apakah Anda yakin ingin menghapus kategori <strong className="text-zinc-900">"{deletingCategory?.name}"</strong>? Tindakan ini tidak dapat dibatalkan.
+                        </DialogDescription>
+                    </DialogHeader>
+
+                    <DialogFooter className="flex flex-row justify-end gap-2 pt-3">
+                        <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            disabled={isSubmitting}
+                            onClick={() => setDeletingCategory(null)}
+                            className="h-8 px-3 text-xs rounded-xl border-zinc-200"
+                        >
+                            Batal
+                        </Button>
+                        <Button
+                            type="button"
+                            size="sm"
+                            disabled={isSubmitting}
+                            onClick={handleConfirmDelete}
+                            className="h-8 px-3.5 text-xs font-bold rounded-xl bg-rose-600 hover:bg-rose-700 text-white cursor-pointer shadow-xs"
+                        >
+                            {isSubmitting ? 'Menghapus...' : 'Ya, Hapus'}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
+            {/* 5. Popup Dialog: Info Kategori Tidak Dapat Dihapus */}
+            <Dialog open={blockedCategory !== null} onOpenChange={(open) => !open && setBlockedCategory(null)}>
+                <DialogContent className="max-w-xs sm:max-w-sm w-[90vw] rounded-2xl p-4 sm:p-5">
+                    <DialogHeader className="text-left pb-1">
+                        <div className="w-10 h-10 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center mb-1">
+                            <span className="material-symbols-outlined text-[22px]">warning</span>
+                        </div>
+                        <DialogTitle className="text-sm font-bold text-zinc-900">
+                            Tidak Dapat Dihapus
+                        </DialogTitle>
+                        <DialogDescription className="text-xs text-zinc-600 pt-1">
+                            Kategori <strong className="text-zinc-900">"{blockedCategory?.name}"</strong> saat ini masih digunakan oleh <strong className="text-rose-600">{blockedCategory?.products_count} produk</strong>.
+                            <span className="block mt-1 text-zinc-500 text-[11px]">
+                                Silakan ubah atau hapus produk yang terhubung ke kategori ini terlebih dahulu.
+                            </span>
+                        </DialogDescription>
+                    </DialogHeader>
+
+                    <DialogFooter className="flex flex-row justify-end pt-2">
+                        <Button
+                            type="button"
+                            size="sm"
+                            onClick={() => setBlockedCategory(null)}
+                            className="h-8 px-4 text-xs font-bold rounded-xl bg-zinc-900 hover:bg-zinc-800 text-white cursor-pointer"
+                        >
+                            Mengerti
+                        </Button>
+                    </DialogFooter>
                 </DialogContent>
             </Dialog>
         </>

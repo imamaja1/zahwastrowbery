@@ -1,6 +1,15 @@
 import React, { useState } from 'react';
 import { Head } from '@inertiajs/react';
 import AdminLayout from '@/layouts/AdminLayout';
+import { Button } from '@/components/ui/button';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog';
 import { ProductProps } from './types';
 import { useProductManagement } from './hooks/useProductManagement';
 import ProductFilterBar from './components/ProductFilterBar';
@@ -38,6 +47,12 @@ export default function AdminProductsIndex(props: ProductProps) {
         setData,
         processing,
         errors,
+        deletingProduct,
+        deletingVariant,
+        confirmDeleteProduct,
+        cancelDeleteProduct,
+        confirmDeleteVariant,
+        cancelDeleteVariant,
         handleSearchChange,
         handleCategoryChange,
         handleClearSearch,
@@ -159,6 +174,80 @@ export default function AdminProductsIndex(props: ProductProps) {
                 categories={props.categories}
                 onClose={() => setIsCategoryManagerOpen(false)}
             />
+
+            {/* Modal 5: Popup Konfirmasi Hapus Produk */}
+            <Dialog open={deletingProduct !== null} onOpenChange={(open) => !open && cancelDeleteProduct()}>
+                <DialogContent className="max-w-xs sm:max-w-sm w-[90vw] rounded-2xl p-4 sm:p-5">
+                    <DialogHeader className="text-left pb-1">
+                        <div className="w-10 h-10 rounded-xl bg-rose-100 text-rose-600 flex items-center justify-center mb-1">
+                            <span className="material-symbols-outlined text-[22px]">delete_forever</span>
+                        </div>
+                        <DialogTitle className="text-sm font-bold text-zinc-900">
+                            Hapus Buah Ini?
+                        </DialogTitle>
+                        <DialogDescription className="text-xs text-zinc-600 pt-1">
+                            Apakah Anda yakin ingin menghapus produk <strong className="text-zinc-900">"{deletingProduct?.name}"</strong> beserta seluruh varian dan fotonya?
+                        </DialogDescription>
+                    </DialogHeader>
+
+                    <DialogFooter className="flex flex-row justify-end gap-2 pt-3">
+                        <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={cancelDeleteProduct}
+                            className="h-8 px-3 text-xs rounded-xl border-zinc-200"
+                        >
+                            Batal
+                        </Button>
+                        <Button
+                            type="button"
+                            size="sm"
+                            onClick={confirmDeleteProduct}
+                            className="h-8 px-3.5 text-xs font-bold rounded-xl bg-rose-600 hover:bg-rose-700 text-white cursor-pointer shadow-xs"
+                        >
+                            Ya, Hapus
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
+            {/* Modal 6: Popup Konfirmasi Hapus Varian */}
+            <Dialog open={deletingVariant !== null} onOpenChange={(open) => !open && cancelDeleteVariant()}>
+                <DialogContent className="max-w-xs sm:max-w-sm w-[90vw] rounded-2xl p-4 sm:p-5">
+                    <DialogHeader className="text-left pb-1">
+                        <div className="w-10 h-10 rounded-xl bg-rose-100 text-rose-600 flex items-center justify-center mb-1">
+                            <span className="material-symbols-outlined text-[22px]">delete_forever</span>
+                        </div>
+                        <DialogTitle className="text-sm font-bold text-zinc-900">
+                            Hapus Varian Ini?
+                        </DialogTitle>
+                        <DialogDescription className="text-xs text-zinc-600 pt-1">
+                            Apakah Anda yakin ingin menghapus varian <strong className="font-mono text-zinc-900">{deletingVariant?.sku}</strong>?
+                        </DialogDescription>
+                    </DialogHeader>
+
+                    <DialogFooter className="flex flex-row justify-end gap-2 pt-3">
+                        <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={cancelDeleteVariant}
+                            className="h-8 px-3 text-xs rounded-xl border-zinc-200"
+                        >
+                            Batal
+                        </Button>
+                        <Button
+                            type="button"
+                            size="sm"
+                            onClick={confirmDeleteVariant}
+                            className="h-8 px-3.5 text-xs font-bold rounded-xl bg-rose-600 hover:bg-rose-700 text-white cursor-pointer shadow-xs"
+                        >
+                            Ya, Hapus
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </AdminLayout>
     );
 }
