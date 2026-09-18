@@ -1,13 +1,19 @@
 import React from 'react';
 import { Link } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
-import { RecentSale } from '../types';
+import { PaginatedData, RecentSale } from '../types';
 
 interface Props {
-    recentSales: RecentSale[];
+    recentSales?: PaginatedData<RecentSale> | RecentSale[];
 }
 
 export default function RecentSalesFeed({ recentSales }: Props) {
+    const isPaginated = recentSales && !Array.isArray(recentSales);
+    const salesList: RecentSale[] = isPaginated
+        ? (recentSales as PaginatedData<RecentSale>).data
+        : (recentSales as RecentSale[]) || [];
+    const pagination = isPaginated ? (recentSales as PaginatedData<RecentSale>) : null;
+
     const formatRupiah = (num: number) => {
         return 'Rp' + Math.round(num).toLocaleString('id-ID');
     };
@@ -62,17 +68,17 @@ export default function RecentSalesFeed({ recentSales }: Props) {
                     size="sm"
                     className="text-[10px] font-bold text-rose-600 hover:text-rose-700 h-6 px-1.5"
                 >
-                    <Link href="/admin/sales">Semua →</Link>
+                    <Link href="/admin/sales">Semua ({pagination?.total ?? salesList.length}) →</Link>
                 </Button>
             </div>
 
-            {recentSales.length === 0 ? (
+            {salesList.length === 0 ? (
                 <div className="p-4 text-center border border-zinc-200 rounded-2xl bg-white">
                     <p className="text-[11px] text-zinc-400">Belum ada transaksi.</p>
                 </div>
             ) : (
                 <div className="flex flex-col gap-2">
-                    {recentSales.map((order) => (
+                    {salesList.map((order) => (
                         <Link
                             key={order.id}
                             href="/admin/sales"
@@ -101,6 +107,71 @@ export default function RecentSalesFeed({ recentSales }: Props) {
                             </div>
                         </Link>
                     ))}
+
+                    {/* Pagination Controls */}
+                    {pagination && pagination.last_page > 1 && (
+                        <div className="flex items-center justify-between border border-zinc-200/80 bg-white rounded-xl px-3 py-2 mt-1">
+                            <span className="text-[10px] text-zinc-500 font-medium">
+                                Hal {pagination.current_page} dari {pagination.last_page} ({pagination.total} pesanan)
+                            </span>
+
+                            <div className="flex items-center gap-1.5">
+                                {pagination.prev_page_url ? (
+                                    <Button
+                                        asChild
+                                        variant="outline"
+                                        size="sm"
+                                        className="h-6 px-2 text-[10px] font-bold rounded-lg border-zinc-200"
+                                    >
+                                        <Link
+                                            href={pagination.prev_page_url}
+                                            preserveScroll
+                                            preserveState
+                                            only={['recent_sales']}
+                                        >
+                                            ← Sebelumnya
+                                        </Link>
+                                    </Button>
+                                ) : (
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        disabled
+                                        className="h-6 px-2 text-[10px] font-bold rounded-lg border-zinc-200 opacity-40"
+                                    >
+                                        ← Sebelumnya
+                                    </Button>
+                                )}
+
+                                {pagination.next_page_url ? (
+                                    <Button
+                                        asChild
+                                        variant="outline"
+                                        size="sm"
+                                        className="h-6 px-2 text-[10px] font-bold rounded-lg border-zinc-200 text-rose-600 border-rose-200 hover:bg-rose-50"
+                                    >
+                                        <Link
+                                            href={pagination.next_page_url}
+                                            preserveScroll
+                                            preserveState
+                                            only={['recent_sales']}
+                                        >
+                                            Berikutnya →
+                                        </Link>
+                                    </Button>
+                                ) : (
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        disabled
+                                        className="h-6 px-2 text-[10px] font-bold rounded-lg border-zinc-200 opacity-40"
+                                    >
+                                        Berikutnya →
+                                    </Button>
+                                )}
+                            </div>
+                        </div>
+                    )}
                 </div>
             )}
         </div>

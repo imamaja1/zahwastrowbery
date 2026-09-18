@@ -42,6 +42,7 @@ interface Props {
     onSetPreviewImage: (url: string | null) => void;
     onFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
     onSaveProduct: (e: React.FormEvent) => void;
+    onOpenCategoryManager?: () => void;
 }
 
 export default function ProductFormDialog({
@@ -60,13 +61,14 @@ export default function ProductFormDialog({
     onSetPreviewImage,
     onFileChange,
     onSaveProduct,
+    onOpenCategoryManager,
 }: Props) {
     return (
         <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-            <DialogContent className="max-w-xs sm:max-w-md w-[92vw] max-h-[85vh] overflow-y-auto rounded-2xl p-4">
-                <DialogHeader className="pb-2 border-b border-zinc-100 text-left">
-                    <DialogTitle className="text-sm font-bold text-zinc-900">
-                        {editingProduct ? 'Edit Master Buah' : 'Tambah Buah Baru'}
+            <DialogContent className="max-w-xs sm:max-w-md w-[92vw] max-h-[90vh] overflow-y-auto rounded-2xl p-4 sm:p-5">
+                <DialogHeader className="text-left">
+                    <DialogTitle className="text-sm sm:text-base font-bold text-zinc-900">
+                        {editingProduct ? `Edit Buah: ${editingProduct.name}` : 'Tambah Buah Baru'}
                     </DialogTitle>
                     <DialogDescription className="text-[11px] text-zinc-500">
                         Atur foto buah, nama, kategori, dan deskripsi produk.
@@ -90,9 +92,22 @@ export default function ProductFormDialog({
                     </div>
 
                     <div className="space-y-1">
-                        <Label htmlFor="category_id" className="text-xs font-semibold text-zinc-700">
-                            Kategori Buah *
-                        </Label>
+                        <div className="flex items-center justify-between">
+                            <Label htmlFor="category_id" className="text-xs font-semibold text-zinc-700">
+                                Kategori Buah *
+                            </Label>
+                            {onOpenCategoryManager && (
+                                <button
+                                    type="button"
+                                    onClick={onOpenCategoryManager}
+                                    className="text-[10px] font-bold text-rose-600 hover:text-rose-700 hover:underline flex items-center gap-0.5 cursor-pointer bg-rose-50 px-1.5 py-0.5 rounded-md border border-rose-100 transition-colors"
+                                    title="Kelola, edit, atau hapus kategori buah"
+                                >
+                                    <span className="material-symbols-outlined text-[13px]">tune</span>
+                                    <span>Kelola Kategori</span>
+                                </button>
+                            )}
+                        </div>
                         <Select value={data.category_id} onValueChange={(val) => onSetData('category_id', val)}>
                             <SelectTrigger id="category_id" className="h-9 text-xs font-medium rounded-xl">
                                 <SelectValue placeholder="Pilih Kategori" />

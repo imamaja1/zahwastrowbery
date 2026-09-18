@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
 use App\Http\Controllers\Admin\ProfileController as AdminProfileController;
@@ -47,12 +48,17 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->name('admin.')->group(fun
     Route::get('/sales', [AdminSaleController::class, 'index'])->name('sales.index');
     Route::post('/sales/{id}/verify', [AdminSaleController::class, 'verify'])->name('sales.verify');
 
-    // 1. Manajemen Produk
+    // 1. Manajemen Produk & Kategori
     Route::get('/products', [AdminProductController::class, 'index'])->name('products.index');
     Route::post('/products', [AdminProductController::class, 'store'])->name('products.store');
     Route::put('/products/{id}', [AdminProductController::class, 'update'])->name('products.update');
     Route::post('/products/{id}/toggle', [AdminProductController::class, 'toggle'])->name('products.toggle');
     Route::delete('/products/{id}', [AdminProductController::class, 'destroy'])->name('products.destroy');
+
+    // Manajemen Kategori
+    Route::post('/categories', [CategoryController::class, 'store'])->name('categories.store');
+    Route::put('/categories/{id}', [CategoryController::class, 'update'])->name('categories.update');
+    Route::delete('/categories/{id}', [CategoryController::class, 'destroy'])->name('categories.destroy');
 
     // 2. Manajemen Varian
     Route::get('/variants', [AdminVariantController::class, 'index'])->name('variants.index');

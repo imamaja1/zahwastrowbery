@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Sale;
 use App\Models\SaleItem;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
@@ -41,6 +42,26 @@ class DashboardController extends Controller
                 'items_summary' => $sale->items->map(fn ($i) => "{$i->product_name} ({$i->variant_name}) × {$i->quantity}")->join(', '),
             ]);
 
+        // 7-day dynamic sales trend for realtime chart
+        $salesTrend = collect(range(6, 0))->map(function ($daysAgo) {
+            $date = Carbon::today()->subDays($daysAgo);
+            $dateStr = $date->toDateString();
+            $total = (float) Sale::where('payment_status', Sale::STATUS_PAID)
+                ->whereDate('created_at', $dateStr)
+                ->sum('total_amount');
+            $count = Sale::where('payment_status', Sale::STATUS_PAID)
+                ->whereDate('created_at', $dateStr)
+                ->count();
+
+            return [
+                'date' => $dateStr,
+                'day_name' => $date->translatedFormat('D'),
+                'label' => $daysAgo === 0 ? 'Hari Ini' : ($daysAgo === 1 ? 'Kemarin' : $date->format('d/m')),
+                'total' => $total,
+                'count' => $count,
+            ];
+        })->values()->all();
+
         // Monthly sales data for graph (Compatible with MySQL, PostgreSQL, and SQLite)
         $monthExpr = match (DB::getDriverName()) {
             'sqlite' => "strftime('%m', created_at)",
@@ -55,9 +76,15 @@ class DashboardController extends Controller
             ->pluck('total', 'month')
             ->all();
 
-        // Top selling products
-        $topProducts = SaleItem::select('product_name', DB::raw('SUM(quantity) as total_qty'), DB::raw('SUM(subtotal) as total_rev'))
-            ->groupBy('product_name')
+        // Top selling products (only paid transactions)
+        $topProducts = SaleItem::select(
+            'sale_items.product_name',
+            DB::raw('SUM(sale_items.quantity) as total_qty'),
+            DB::raw('SUM(sale_items.subtotal) as total_rev')
+        )
+            ->join('sales', 'sales.id', '=', 'sale_items.sale_id')
+            ->where('sales.payment_status', Sale::STATUS_PAID)
+            ->groupBy('sale_items.product_name')
             ->orderByDesc('total_qty')
             ->take(5)
             ->get()
@@ -67,12 +94,12 @@ class DashboardController extends Controller
                 'total_revenue' => (float) $item->total_rev,
             ]);
 
-        // Recent sales for live activity feed
+        // Recent sales with pagination for dashboard feed
         $recentSales = Sale::with('items')
             ->latest()
-            ->take(5)
-            ->get()
-            ->map(fn ($sale) => [
+            ->paginate(5)
+            ->withQueryString()
+            ->through(fn ($sale) => [
                 'id' => $sale->id,
                 'invoice_number' => $sale->invoice_number,
                 'customer_name' => $sale->customer_name,
@@ -95,6 +122,7 @@ class DashboardController extends Controller
             'pending_verifications' => $pendingVerifications,
             'recent_sales' => $recentSales,
             'top_products' => $topProducts,
+            'sales_trend' => $salesTrend,
             'monthly_sales' => $monthlySales,
         ]);
     }

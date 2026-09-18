@@ -30,6 +30,33 @@ export interface TopProduct {
     total_revenue: number;
 }
 
+export interface SalesTrendItem {
+    date: string;
+    day_name: string;
+    label: string;
+    total: number;
+    count: number;
+}
+
+export interface PaginationLink {
+    url: string | null;
+    label: string;
+    active: boolean;
+}
+
+export interface PaginatedData<T> {
+    data: T[];
+    current_page: number;
+    last_page: number;
+    per_page: number;
+    total: number;
+    from: number | null;
+    to: number | null;
+    prev_page_url: string | null;
+    next_page_url: string | null;
+    links: PaginationLink[];
+}
+
 export interface DashboardMetrics {
     total_revenue: number;
     total_transactions: number;
@@ -40,7 +67,8 @@ export interface DashboardMetrics {
 export interface DashboardProps {
     metrics: DashboardMetrics;
     pending_verifications: PendingItem[];
-    recent_sales?: RecentSale[];
+    recent_sales?: PaginatedData<RecentSale> | RecentSale[];
     top_products: TopProduct[];
+    sales_trend?: SalesTrendItem[];
     monthly_sales: Record<string, number>;
 }

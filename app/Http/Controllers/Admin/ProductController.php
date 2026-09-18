@@ -75,7 +75,7 @@ class ProductController extends Controller
             ];
         });
 
-        $categories = Category::where('is_active', true)->get(['id', 'name', 'slug']);
+        $categories = Category::withCount('products')->where('is_active', true)->get(['id', 'name', 'slug', 'description']);
         $packagingTypes = PackagingType::where('is_active', true)->get(['id', 'name']);
         $sizes = Size::where('is_active', true)->get(['id', 'name']);
         $units = Unit::where('is_active', true)->get(['id', 'name', 'symbol']);

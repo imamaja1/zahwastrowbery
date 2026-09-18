@@ -16,6 +16,7 @@ export default function AdminDashboard({
     pending_verifications,
     recent_sales = [],
     top_products,
+    sales_trend = [],
 }: DashboardProps) {
     const [selectedProof, setSelectedProof] = useState<string | null>(null);
     const [rejectingId, setRejectingId] = useState<number | null>(null);
@@ -69,7 +70,7 @@ export default function AdminDashboard({
                 />
 
                 {/* 5. Grafik Penjualan & Produk Terlaris */}
-                <SalesAnalytics topProducts={top_products} />
+                <SalesAnalytics topProducts={top_products} salesTrend={sales_trend} />
 
                 {/* 6. Pesanan Terbaru Feed */}
                 <RecentSalesFeed recentSales={recent_sales} />

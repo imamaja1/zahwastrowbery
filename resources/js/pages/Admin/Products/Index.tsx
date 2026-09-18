@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Head } from '@inertiajs/react';
 import AdminLayout from '@/layouts/AdminLayout';
 import { ProductProps } from './types';
@@ -8,8 +8,11 @@ import ProductCardList from './components/ProductCardList';
 import ProductFormDialog from './components/ProductFormDialog';
 import VariantManagerDialog from './components/VariantManagerDialog';
 import SingleVariantDialog from './components/SingleVariantDialog';
+import CategoryManagerDialog from './components/CategoryManagerDialog';
 
 export default function AdminProductsIndex(props: ProductProps) {
+    const [isCategoryManagerOpen, setIsCategoryManagerOpen] = useState(false);
+
     const {
         searchTerm,
         selectedCategory,
@@ -109,6 +112,7 @@ export default function AdminProductsIndex(props: ProductProps) {
                 onSetPreviewImage={setPreviewImage}
                 onFileChange={handleFileChange}
                 onSaveProduct={handleSaveProduct}
+                onOpenCategoryManager={() => setIsCategoryManagerOpen(true)}
             />
 
             {/* Modal 2: Manage Variants List Dialog */}
@@ -147,6 +151,13 @@ export default function AdminProductsIndex(props: ProductProps) {
                 onSetVariantStock={setVariantStock}
                 onSetVariantIsActive={setVariantIsActive}
                 onSaveVariant={handleSaveVariant}
+            />
+
+            {/* Modal 4: Manage Categories Dialog */}
+            <CategoryManagerDialog
+                isOpen={isCategoryManagerOpen}
+                categories={props.categories}
+                onClose={() => setIsCategoryManagerOpen(false)}
             />
         </AdminLayout>
     );
